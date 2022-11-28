@@ -1,2 +1,2 @@
-# Complete_Case_Censored_Covariates
+# Complete Case Censored Covariates
 Simulation code for the manuscript "Insert Name Here".
