@@ -1,3 +1,10 @@
+########################################################## 
+# This script creates the DAG figures for the manuscript #
+##########################################################
+
+###########################
+##### Packages Needed #####
+###########################
 
 library(tidyverse)
 # install.packages("ggdag")
@@ -6,10 +13,18 @@ library(ggdag)
 library(cowplot)
 library(latex2exp)
 
+########################
+##### Coordinates ######
+########################
+
 coord_dag = list(
   x = c(X = -0.25, C = 0, Y = 2, D = 0.5, Z = -1),
   y = c(X = 0.15, Y = 0, C = -1, D = -0.25, Z = 0.5)
 )
+
+########################################
+##### Defining direct paths/labels #####
+########################################
 
 dag1 <- dagify(Y ~ X,
               X ~ Z,
@@ -40,6 +55,10 @@ dag2 <- dagify(Y ~ X,
                           "D" = "Censoring Indicator",
                           "Z" = "CAG repeat length & Age"))
 
+####################
+##### Plotting #####
+####################
+
 dag1_plot <- ggdag(dag1,
       text = FALSE,
       use_labels = "label",
@@ -56,8 +75,12 @@ dag2_plot <- ggdag(dag2,
   geom_dag_text(parse = TRUE, 
                 label = c("C", TeX("\\Delta"), "X", "Y", "Z"))
 
-test = cowplot::plot_grid(dag2_plot, dag1_plot,
+###################################
+##### Plotting on same figure #####
+###################################
+
+dags = cowplot::plot_grid(dag2_plot, dag1_plot,
                           align = "hv", axis = "tblr", labels = c("a)", "b)"),
                           nrow = 1, hjust = -10)
-test
+dags
 

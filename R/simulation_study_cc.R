@@ -1,44 +1,49 @@
-###############################################################
-##################### SIMULATION STUDY FOR CC PAPER ###########
-###############################################################
+####################################################################
+# this script defines functions for running the simulation studies #
+####################################################################
 
 # clear environment
 rm(list = ls())
 
-###############################################################
-##################### COMMAND LINE ARGUMENTS FOR CLUSTER #####
-###############################################################
+###############################################
+###### COMMAND LINE ARGUMENTS FOR CLUSTER #####
+###############################################
+
+# This is primarily used when running this simulation script from the command line 
+## these arguments are inputs to the script 
+
 args <- commandArgs(TRUE)
+
+# if not using commmand line, use something like this (uncomment to use)
+# args <- c(100, # number of sims
+#          100, # sample size
+#          1, # number of Z covariates
+#          "1r1", # true parameter values, first one is for X, second one for Z
+#          "0,0", # starting values for iterative procedure
+#          "linear", # mean function
+#          0.5, # censoring rate
+#          "exog_broken", # censoring mechanism
+#          1, # sigma2 
+#          "test_sims") # output file name
 
 num_sims. <- as.numeric(args[1]) # number of simulations
 n. <- as.numeric(args[2]) # sample size
-p. <- as.numeric(args[3]) # number of Z covariates
+p. <- as.numeric(args[3]) # number of Z covariates (including the intercept)
 true_beta. <- as.numeric(strsplit(args[4], "r")[[1]]) # true value for beta entered as "r" separated list
 starting_vals. <- as.numeric(strsplit(args[5], "r")[[1]]) # starting values entered as "r" separated list
-m_func. <- as.character(args[6]) # linear, log, or logit as options for now
+m_func. <- as.character(args[6]) 
 censoring_rate. <- as.numeric(strsplit(args[7], "r")[[1]]) # censoring rates entered as "r" separated list
 censoring_mechanism. <- as.character(args[8])
 sigma2. <- as.numeric(args[9])
 output_file <- as.character(args[10]) # output file name
 
-###############################################################
-##################### arguments when using local comp #########
-###############################################################
-# num_sims. <- 100
-# n. <- 100
-# p. <- 2
-# true_beta. <- c(0.01, -0.02, 0.005)
-# starting_vals. <- c(0, 0, 0)
-# m_func. <- "logistic"
-# censoring_rate. <- c(0.5)
-# censoring_assumption. <- TRUE
-# censoring_mechanism. <- "exog_broken"
-# sigma2. = 0.08
-# output_file <- "test"
 
-###############################################################
-##################### packages and functions needed ##########
-###############################################################
+
+###############################################
+###### packages and functions needed ##########
+###############################################
+
+# need functions from main_cc.R
 source("R/main_cc.R")
 
 # packages needed
@@ -50,15 +55,15 @@ library(parallel)
 library(xtable)
 library(survival)
 
-###############################################################
-##################### DATA GENERATION #########################
-###############################################################
+#################################################
+###### DATA GENERATION #########################
+#################################################
 
 ## Create a function that generates data for a linear/nonlinear regression model 
 ## y = m(x,z,beta) + e
 ## m() can be linear or nonlinear 
 ## X is potentially censored (one for now)
-## Z there are no censored (allow p = 0, 1, ...)
+## Z (allow p = 0, 1, ...)
 ## Generate e from normal distribution 
 
 ## generate_data takes the following inputs
@@ -67,25 +72,31 @@ library(survival)
 ### n is sample size
 ### true_beta is a p+1 vector of true values for beta 
 ### censoring_rate is the proportion of X that are censored, 0 when not censored 
-### censoring_mechanism defines how the data will be simulated ...
+### censoring_mechanism defines how the data will be simulated
+###### options are exog_broken, strict_exog_broken, cond_indep_xz_broken,
+######             cond_indep_z_broken, indep_broken, indep_holds
 generate_data <- function(n, p, m, true_beta, censoring_rate, 
                           censoring_mechanism, sigma2){
-  ## ERROR CHECKS
   
-  ## note == no intercepts right now ...
-  # make this a command line argument at some point so people can choose to include an intercept or not 
+  # can make this a command line argument at some point so people can choose to include an intercept or not 
+  # for now, intercept defaults to true 
   intercept <- TRUE
   
   
   ## DATA GENERATION FOR ALL CENSORING ASSUMPTONS 
+  
+  # X generated from uniform distribution
   X <- runif(n, 0, 3)
   
+  # If p = 0, no Z including intercept
   if(p == 0){
     Z <- NULL
   }else{
+    # generated Z from standard normal
     Z <- matrix(rnorm(n*p), nrow = n)
   }
   
+  # change first column of Z to intercept (column of ones)
   if(p > 0 & intercept == TRUE){
     Z[,p] <- rep(1, n)
   }
@@ -96,108 +107,77 @@ generate_data <- function(n, p, m, true_beta, censoring_rate,
   ## DATA GENERATION SPECIFIC TO CERTAIN CENSORING ASSUMPTIONS 
   
   ######################### 
-  ## EXOG BROKEN      #####
+  ##### EXOG BROKEN #####
   #########################
   
   if(censoring_mechanism == "exog_broken"){
-   # X <- runif(n, 0, 3)
 
     D <- rbernoulli(n, 1-censoring_rate) %>% as.numeric()
     mult = sqrt(sigma2)/8
     e <- lapply(1:n, function(x) 
-      ifelse(D[x]==1, rnorm(1, -censoring_rate*mult/(1-censoring_rate), sqrt(sigma2)), rnorm(1, mult, sqrt(sigma2)))) %>% unlist()
+      ifelse(D[x]==1, 
+             rnorm(1, -censoring_rate*mult/(1-censoring_rate), sqrt(sigma2)), 
+             rnorm(1, mult, sqrt(sigma2)))) %>% 
+      unlist()
     y <- m(true_beta, X, Z) + e
   }
   
-  ######################### 
-  ## STRICT EXOG BROKEN ###
-  #########################
+  ##############################
+  ##### STRICT EXOG BROKEN #####
+  ##############################
   
   if(censoring_mechanism == "strict_exog_broken"){
-   # X <- runif(n, 0, 3)
-
     e <- rnorm(n, 0, sqrt(sigma2))
     D <- ifelse(abs(e) >= quantile(abs(e), censoring_rate) , 1, 0)
     y <- m(true_beta, X, Z) + e
   }
   
-  ######################### 
-  ## COND INDEP BROKEN ####
-  #########################
+  ############################### 
+  ##### COND INDEP XZ BROKEN ####
+  ###############################
   
-  if(censoring_mechanism == "cond_indep_broken"){
-  #  X <- runif(n, 0, 3)
+  if(censoring_mechanism == "cond_indep_xz_broken"){
     
     if(censoring_rate >= 0.5){ 
       C <- runif(n, 0, 6*(1-censoring_rate))
       D <- ifelse(X <= C, 1, 0)
       e <- rnorm(n, 0, ifelse(C > quantile(C)[4] | C < quantile(C)[2], 
-                              sqrt(1.5*sigma2), sqrt(0.5*sigma2)))
+                              sqrt(1.5*sigma2), 
+                              sqrt(0.5*sigma2)))
     }else if(censoring_rate < 0.5 & censoring_rate > 0){
       C <- runif(n, 0, 3/(2*censoring_rate))
       D <- ifelse(X <= C, 1, 0)
       e <- rnorm(n, 0, ifelse(C > quantile(C)[4] | C < quantile(C)[2], 
-                              sqrt(5*sigma2), sqrt(0.5*sigma2)))
-      #   D <- rbinom(n, size = 1, prob = 1- censoring_rate)
+                              sqrt(5*sigma2), 
+                              sqrt(0.5*sigma2)))
     }else{
       D <- rep(1, n)
       e <- rnorm(n, 0, sqrt(sigma2))
     }
-
-    # if(censoring_rate > 0){
-    #   mu <- qnorm(1-censoring_rate)
-    #   C <- rnorm(n, X + mu, 1)
-    #   D <- ifelse(X <= C, 1, 0)
-    #   e <- sample(c(-sqrt(sigma2), sqrt(sigma2)), n, replace = TRUE)*abs(C-X)
-    # }else{
-    #   D <- rep(1, n)
-    #   C <- rnorm(n)
-    #   e <- sample(c(-sqrt(sigma2), sqrt(sigma2)), n, replace = TRUE)*abs(C-X)
-    # }
     y <- m(true_beta, X, Z) + e
   }
   
-  ############################
-  ## NON-INFORMATIVE BROKEN ##
-  ############################
+  ###############################
+  ##### COND INDEP Z BROKEN #####
+  ###############################
   
-  if(censoring_mechanism == "noninf_broken"){
-   # X <- rexp(n)
-   # X <- runif(n, 0, 3)
+  if(censoring_mechanism == "cond_indep_z_broken"){
     e <- rnorm(n, 0, sqrt(sigma2))
     if(censoring_rate > 0){
       C <- runif(n, 0, X/censoring_rate)  
       D <- ifelse(X <= C, 1, 0)
-    # if(censoring_rate >= 0.5){ 
-    #   C <- ifelse(X > median(X), runif(n, 0, 6*(1-censoring_rate)), 
-    #               runif(n, (3-6*(censoring_rate))/(2*(1-censoring_rate)), 3))  
-    #   D <- ifelse(X <= C, 1, 0)
-    #   #  D <- rbinom(n, size = 1, prob = 1- censoring_rate)
-    # }else if(censoring_rate < 0.5 & censoring_rate > 0){
-    #   C <- ifelse(X > median(X), runif(n, 0, 3/(2*censoring_rate)), 
-    #               runif(n,6*(1-censoring_rate)-3,3))
-    #   D <- ifelse(X <= C, 1, 0)
-    #   #   D <- rbinom(n, size = 1, prob = 1- censoring_rate)
     }else{
       D <- rep(1, n)
     }
-    # if(censoring_rate > 0){
-    #   C <- rexp(n, -log(1-censoring_rate)/X)
-    #   D <- ifelse(X <= C, 1, 0)
-    # }else{
-    #   D <- rep(1, n)
-    # }
     y <- m(true_beta, X, Z) + e
   }
   
   
-  ######################### 
-  ## INDEPENDENCE BROKEN ##
-  #########################
+  ################################ 
+  ###### INDEPENDENCE BROKEN #####
+  ################################
   
   if(censoring_mechanism == "indep_broken"){
-    # X <- rexp(n)
-  #  X <- runif(n, 0, 3)
     if(p ==0){
       stop("Cannot use this censoring_mechanism without Z covariates.")
     }
@@ -206,66 +186,33 @@ generate_data <- function(n, p, m, true_beta, censoring_rate,
       C <- ifelse(Z[,1] > median(Z[,1]), runif(n, 0, 6*(1-censoring_rate)), 
                   runif(n, (3-6*censoring_rate)/(2*(1-censoring_rate)), 3))     
       D <- ifelse(X <= C, 1, 0)
-      #  D <- rbinom(n, size = 1, prob = 1- censoring_rate)
     }else if(censoring_rate < 0.5 & censoring_rate > 0){
       C <- ifelse(Z[,1] > median(Z[,1]), runif(n, 0, 3/(2*(censoring_rate))), 
                   runif(n,6*(1-censoring_rate)-3,3))
       D <- ifelse(X <= C, 1, 0)
-      #   D <- rbinom(n, size = 1, prob = 1- censoring_rate)
     }else{
       D <- rep(1, n)
     }
-    # if(censoring_rate > 0){
-    #   ## interesting way of doing this but it works
-    #   C <- ifelse(Z[,1] > quantile(Z[,1], censoring_rate), 10, 0.01)
-    #   D <- ifelse(X <= C, 1, 0)
-    # }else{
-    #   D <- rep(1, n)
-    # }
     y <- m(true_beta, X, Z) + e
   }
   
-  ######################### 
-  ## INDEPENDENCE HOLDS ###
-  #########################
+  ############################# 
+  ##### INDEPENDENCE HOLDS ####
+  #############################
   
   if(censoring_mechanism == "indep_holds"){
-    # X <- rexp(n)
-  #  X <- runif(n, 0, 3)
-
     e <- rnorm(n, 0, sqrt(sigma2))
     if(censoring_rate >= 0.5){ 
          C <- runif(n, 0, 6*(1-censoring_rate))
          D <- ifelse(X <= C, 1, 0)
-    #  D <- rbinom(n, size = 1, prob = 1- censoring_rate)
       }else if(censoring_rate < 0.5 & censoring_rate > 0){
       C <- runif(n, 0, 3/(2*censoring_rate))
       D <- ifelse(X <= C, 1, 0)
-   #   D <- rbinom(n, size = 1, prob = 1- censoring_rate)
     }else{
       D <- rep(1, n)
     }
     y <- m(true_beta, X, Z) + e
   }
-  
-  
-  ######################### 
-  ## MCAR HOLDS ###
-  #########################
-  
-  if(censoring_mechanism == "MCAR"){
-    # X <- rexp(n)
-    #  X <- runif(n, 0, 3)
-    
-    e <- rnorm(n, 0, sigma2)
-    if(censoring_rate > 0){
-      D <- rbinom(n, size = 1, prob = 1- censoring_rate)
-    }else{
-      D <- rep(1, n)
-    }
-    y <- m(true_beta, X, Z) + e
-  }
-
   
   # return data in data frame, including indicator for X censored, D 
   data_yXZ <- cbind(y, X, Z, D) %>% as.data.frame()
@@ -273,18 +220,16 @@ generate_data <- function(n, p, m, true_beta, censoring_rate,
   return(data_yXZ)
 }
 
-###############################################################
-##################### RUN SIMULATION ##########################
-###############################################################
+#########################
+##### RUN SIMULATION ####
+#########################
 
 ## Create another function that runs the simulation study
 ## i.e. generates data, estimates beta, and stores the estimate for beta 
 
 ## run_simulation takes the following inputs
 ### takes all inputs for generate_data and estimate_beta
-# ignore CI band for now
 run_simulation <- function(n, p, m, true_beta, starting_vals, censoring_rate, method, censoring_mechanism, se, sigma2){
-  ## ERROR CHECKS
   
   # generate data
   data_yXZ = generate_data(n, p, m, true_beta, censoring_rate, censoring_mechanism, sigma2)
@@ -292,13 +237,13 @@ run_simulation <- function(n, p, m, true_beta, starting_vals, censoring_rate, me
   # estimate beta (function in main_cc.R)
     est_output <- estimate_beta(data_yXZ, m, starting_vals, method)
   
-
+  # se is boolean, true if want the sandwich variance estimator
     if(se){
       se_est <- estimate_se_sandwich(data_yXZ, m, est_output$beta_est, 
                                      method)
     }else{
-      # ignore CI band for now 
-      # Just set equal to identity matrix as a placeholder
+      # if se is false, se_est is set equal to identity matrix as a placeholder
+      # the se estimates from the simulation results will be meaningless
       se_est <- diag(1, p+1)
     }
   
@@ -320,10 +265,10 @@ run_simulation <- function(n, p, m, true_beta, starting_vals, censoring_rate, me
 ### all inputs for run_simulation
 ### default for p is 0
 ### default for m is linear
-### default for starting_vals is NULL (will use lm), must be length p + 1
+### default for starting_vals is NULL (will use zeros in this situation), must be length p + 1
 ### default for censoring_rate is 0 (i.e. no censoring), can take a vector of multiple values 
-### default for censoring_mechanism is strict_exog 
-### default for ci_band is TRUE
+### default for censoring_mechanism is exog_broken 
+### default for se is TRUE
 ### default for sigma2 is 1
 
 generate_simulation_results <- function(num_sims, n, 
@@ -335,9 +280,9 @@ generate_simulation_results <- function(num_sims, n,
                                         starting_vals = NULL,
                                         censoring_rate = 0,
                                         method = c("cc", "oracle"),
-                                        censoring_mechanism = "strict_exog",
+                                        censoring_mechanism = "exog_broken",
                                         output_file = NULL,
-                                        ci_band = TRUE, 
+                                        se = TRUE, 
                                         sigma2 = 1){
   ## ERROR CHECKS
   
@@ -349,7 +294,7 @@ generate_simulation_results <- function(num_sims, n,
   
   # set up dummy function
   dummy_function <- function(x){
-    run_simulation(n, p, m, true_beta, starting_vals, censoring_rate[i], method[j], censoring_mechanism, ci_band, sigma2)
+    run_simulation(n, p, m, true_beta, starting_vals, censoring_rate[i], method[j], censoring_mechanism, se, sigma2)
   }
   
   # intialize list for beta estimate 
@@ -357,11 +302,11 @@ generate_simulation_results <- function(num_sims, n,
   names(sim_output) <- expand_grid(censoring_rate, method) %>% unite(name) %>% unlist() %>% unname()
   
   # running in parallel 
-  cl = makeCluster(24) # use detectCores()) on local # use 24) on the cluster 
+  cl = makeCluster(detectCores()) 
   clusterExport(cl, c("generate_data", "estimate_beta", "estimate_se_sandwich",
                       "run_simulation", "m", "p",
                       "n", "true_beta", "starting_vals",
-                      "censoring_mechanism", "ci_band", "sigma2"), 
+                      "censoring_mechanism", "se", "sigma2"), 
                 envir = environment())
   clusterEvalQ(cl, c(library(tidyverse), library(geex), library(numDeriv)))
   # run clusterApply for each censoring rate and method combo 
@@ -377,9 +322,7 @@ generate_simulation_results <- function(num_sims, n,
   
   # list into dataframe 
   sep <- enframe(sim_output) %>% unnest(cols = value) %>% unnest(cols = value)
-  # return(sep)
-  
-  
+
   # save beta estimation
   beta_est = suppressWarnings(sep[rep(c(TRUE, FALSE), num_sims*length(method)*length(censoring_rate)), ])  %>%
     unnest(cols = value) %>% 
@@ -390,7 +333,7 @@ generate_simulation_results <- function(num_sims, n,
                                                separate(name, c("censoring_rate", "method"), sep = "_") %>% unnest_wider(value)))
   colnames(se_est) = c("censoring_rate", "method", paste0("se", 1:(p+1)))
   
-  # find cover
+  # find coverage probability
   beta_est_cover = beta_est %>% group_by(censoring_rate, method) %>%
     summarise(temp = n()) %>% 
     select(censoring_rate, method)
@@ -404,17 +347,17 @@ generate_simulation_results <- function(num_sims, n,
                          beta + qnorm(0.975)*se > true_beta[i])))
    beta_est_cover = cbind(beta_est_cover, cover_est_new[,3])
   }
-  colnames(beta_est_cover) <- c("Censoring Rate", "Method", paste0("$\\alpha_{", 0:p, "}$"))
+  colnames(beta_est_cover) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
 
   # take the mean of the estimated beta from each simulation 
   beta_est_mean = beta_est %>% group_by(censoring_rate, method) %>% summarise_all(mean) %>% as.data.frame()
   #beta_est_mean = beta_est_mean[,-ncol(beta_est_mean)]
-  colnames(beta_est_mean) <- c("Censoring Rate", "Method", paste0("$\\alpha_{", 0:p, "}$"))
+  colnames(beta_est_mean) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
   
   # take mean of estimated std error from each simulation 
   beta_est_se = se_est %>% group_by(censoring_rate, method) %>% summarise_all(mean) %>% as.data.frame()
   #beta_est_se = beta_est_se[,-ncol(beta_est_se)]
-  colnames(beta_est_se) <- c("Censoring Rate", "Method", paste0("$\\alpha_{", 0:p, "}$"))
+  colnames(beta_est_se) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
   
   # find the ABSOLUTE bias of each estimate for each censoring rate
   if(p == 0){
@@ -427,7 +370,7 @@ generate_simulation_results <- function(num_sims, n,
                           apply(beta_est_mean, 1, function(x) x[-(1:2)] %>% as.numeric() - true_beta) 
                           %>% t() %>% as.data.frame())
   }
-  colnames(beta_est_bias) <- c("Censoring Rate", "Method", paste0("$\\alpha_{", 0:p, "}$"))
+  colnames(beta_est_bias) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
   
   # find the PERCENT bias of each estimate for each censoring rate
   if(p == 0){
@@ -440,15 +383,17 @@ generate_simulation_results <- function(num_sims, n,
                           apply(beta_est_mean, 1, function(x) (x[-(1:2)] %>% as.numeric() - true_beta) / true_beta * 100) 
                           %>% t() %>% as.data.frame())
   }
-  colnames(beta_est_bias_per) <- c("Censoring Rate", "Method", paste0("$\\alpha_{", 0:p, "}$"))
+  colnames(beta_est_bias_per) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
   
   # find the empirical standard error of each estimate for each censoring rate 
   beta_est_std_error = beta_est %>% group_by(censoring_rate, method) %>% summarise_all(sd) %>% as.data.frame()
-  colnames(beta_est_std_error) <- c("Censoring Rate", "Method", paste0("$\\alpha_{", 0:p, "}$"))
+  colnames(beta_est_std_error) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
   
   end_time = Sys.time()
   
   ################## make latex table ##################
+  # resulting table not used in manuscript (see cc_tables.R instead)
+  # this code left for completion
   # RIGHT NOW, latex table gives absolute bias, can switch to percent or do both 
   # the results object outputs both so we can see them now 
   
@@ -473,6 +418,9 @@ generate_simulation_results <- function(num_sims, n,
                         align = rep("c", ncol(beta_df)+1),
                         digits = c(0, 2, 0, rep(4, ncol(beta_df)-2)),
                         type = "latex") 
+  
+# ggplot code not used for final version of simulations
+## commented out but left in for completion 
   
   # add extra row on top of column names for Bias (Empirical Standard Error)
 #  addtorow <- list()
@@ -558,17 +506,17 @@ generate_simulation_results <- function(num_sims, n,
  #  
  #  # combine data and plot
  #  data_plot <- data.frame(x_plot, m_plot)
- # # if(!ci_band){
+ # # if(!se){
  #    results_plot <- ggplot(data = data_plot, aes(x_plot, m_vals, col = method)) + 
  #      facet_grid(cols = vars(type)) + 
- #      geom_smooth(se = FALSE) + # geom_ribbon(aes(ymin = m_low, ymax = m_high), alpha = 0.1) + 
+ #      geom_smooth(se = FALSE) + # geom_ribbon(aes(ymin = m_low, ymax = m_high), beta = 0.1) + 
  #      labs(x = "X", y = "m(X, Z, Beta)", col = "Beta") + 
  #      theme(legend.position = "bottom")
  #  # }else{
  #  #   results_plot <- ggplot(data = data_plot, aes(x_plot, m_vals, col = method, fill = method)) + 
  #  #     facet_grid(cols = vars(type)) + 
  #  #     # make sure each row of data_plot has a m_low and m_high
- #  #     geom_smooth(se = FALSE) + geom_ribbon(aes(ymin = m_low, ymax = m_high), alpha = 0.3, col = NA) + 
+ #  #     geom_smooth(se = FALSE) + geom_ribbon(aes(ymin = m_low, ymax = m_high), beta = 0.3, col = NA) + 
  #  #     labs(x = "X", y = "m(X, Z, Beta)", col = "Beta") + 
  #  #     theme(legend.position = "bottom") + 
  #  #     guides(size = "legend", fill = "none")
@@ -593,10 +541,11 @@ generate_simulation_results <- function(num_sims, n,
        #       results_plot = results_plot))
 }
 
-###############################################################
-##################### LET'S TRY IT :) #########################
-###############################################################
+#####################################
+###### Running the simulation #######
+#####################################
 
+# Defining the mean function
 if(m_func. == "linear"){
   m. = function(beta, X, Z){
     if(length(Z)>1 & is.null(dim(Z))){
@@ -628,55 +577,16 @@ if(m_func. == "linear"){
   }
 }
 
+# running the simulation
 sim1 = generate_simulation_results(num_sims = num_sims., n = n., p = p., true_beta = true_beta., 
                                    starting_vals = starting_vals., censoring_rate = censoring_rate.,
                                    output_file = output_file, m = m.,
                                    censoring_mechanism = censoring_mechanism.,
-                                   ci_band = TRUE, 
+                                   se = TRUE, 
                                    sigma2 = sigma2.)
 
+# saving the results
 saveRDS(sim1, file = paste0(output_file, ".RDS"))
-
-
-######### OLD VERSION  ########## 
-# if(censoring_mechanism == "strict_exog"){
-#   
-#   # for this type of censoring, we want e ind D given X
-#   
-#   # For now, no Z 
-#   # Y = X*true_beta + eps 
-#   if(p == 0){
-#     Z <- NULL
-#   }
-#   
-#   # generate X 
-#   X <- runif(n, 0, 3)
-#   
-#   # generate eps
-#   e <- rnorm(n)
-#   
-#   # generate Y 
-#   y <- m(true_beta, X, Z) + e
-#   
-#   # if censoring assumption holds
-#   if(censoring_assumption){
-#     # this feels like it would cause bias because D is determined directly by
-#     ## the possibly unknown value X. However, it fits the description of the 
-#     ## assumption (I think?)
-#     
-#     ## UPDATE: This is limit of detection censoring, since X is observed only if 
-#     ### greater than a certain value
-#     D <- ifelse(X >= quantile(X, censoring_rate), 1, 0)
-#     
-#     # an alternative that is completely independent of X would be 
-#     # D <- rbinom(n, 1, 1-censoring_rate)
-#   }
-#   # if censoring assumption doesn't hold
-#   else{
-#     # make D dependent on Y and therefore eps 
-#     D <- ifelse(e >= quantile(e, censoring_rate), 1, 0)
-#   }
-# }
 
 
 
