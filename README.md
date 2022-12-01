@@ -14,8 +14,11 @@ In the `R` subdirectory, you will find the following:
 - `dag_cc.R`: This script recreates the Directed Acyclic Graph (DAG) that is in the manuscript.
 - `cc_tables.R`: This script recreates the simulation results tables that are in the manuscript main text and supplementary materials.
 
+*Note*: These scripts assume your working directory is inside the `R` subdirectory.
+
 In the main directory, you will find the following: 
 
 - `.sh`: This is a bash script, which includes an example of another way to run `simulation_study_cc.R` from the command line instead of through the R script itself. To use this on the command line, you would edit the parameters in the file, save, and run the command `bash .sh` in the terminal.
 
 In the `simulation_output` subdirectory, you will find the simulation output files needed to recreate the tables in `R/cc_tables.R`.
+
