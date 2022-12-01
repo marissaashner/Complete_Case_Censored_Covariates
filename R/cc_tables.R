@@ -26,7 +26,7 @@ sim_table_cov <- data.frame()
 
 for(censoring in c("exog_broken", "strict_exog_broken", "cond_indep_xz_broken", "cond_indep_z_broken", "indep_broken", "indep_holds")){
   for(n in c(400)){
-    string_new <- paste0("simulation_output/simulation_numsims1000_n", n, 
+    string_new <- paste0("./simulation_output/simulation_numsims1000_n", n, 
                          "_p2_sigma2-2_linear_truebeta-1r-2r0.5_startingvals-0r0r0_censoringrates-0.25r0.5r0.75_censoringmech-", 
                          censoring, ".RDS")
     sim_new <- readRDS(string_new)
@@ -102,7 +102,7 @@ sim_table_cov <- data.frame()
 
 for(censoring in c("exog_broken", "strict_exog_broken", "cond_indep_xz_broken", "cond_indep_z_broken", "indep_broken", "indep_holds")){
   for(n in c(1200)){
-    string_new <- paste0("simulation_output/simulation_numsims1000_n", n, 
+    string_new <- paste0("./simulation_output/simulation_numsims1000_n", n, 
                          "_p2_sigma2-2_linear_truebeta-1r-2r0.5_startingvals-0r0r0_censoringrates-0.25r0.5r0.75_censoringmech-", 
                          censoring, ".RDS")
     sim_new <- readRDS(string_new)
@@ -176,7 +176,7 @@ sim_table_bias_per <- data.frame()
 
 for(censoring in c("exog_broken")){
   for(n in c(400)){
-    string_new <- paste0("simulation_output/simulation_numsims1000_n", n, 
+    string_new <- paste0("./simulation_output/simulation_numsims1000_n", n, 
                          "_p2_sigma2-2_linear_truebeta-1r-2r0.5_startingvals-0r0r0_censoringrates-0.25r0.5r0.75_censoringmech-", 
                          censoring, ".RDS")
     sim_new <- readRDS(string_new)
@@ -190,7 +190,7 @@ for(censoring in c("exog_broken")){
                                          n = n, intercept = "Yes")  %>% 
                                   filter(`Censoring Rate` !=0.5))
     
-    string_new_no_int <- paste0("simulation_output/simulation_numsims1000_n", n, 
+    string_new_no_int <- paste0("./simulation_output/simulation_numsims1000_n", n, 
                                 "_p1_sigma2-2_linear_truebeta-1r-2_startingvals-0r0_censoringrates-0.25r0.5r0.75_censoringmech-", 
                                 censoring, ".RDS")
     sim_new_no_int <- readRDS(string_new_no_int)
@@ -250,7 +250,7 @@ sim_table_cov <- data.frame()
 
 for(censoring in c("exog_broken", "strict_exog_broken", "cond_indep_xz_broken", "cond_indep_z_broken", "indep_broken", "indep_holds")){
   for(n in c(400)){
-    string_new <- paste0("simulation_output/simulation_numsims1000_n", n, 
+    string_new <- paste0("./simulation_output/simulation_numsims1000_n", n, 
                          "_p2_sigma2-0.08_logistic_truebeta-0.01r-0.02r0.005_startingvals-0r0r0_censoringrates-0.25r0.5r0.75_censoringmech-", 
                          censoring, ".RDS")
     sim_new <- readRDS(string_new)   
@@ -327,7 +327,7 @@ sim_table_cov <- data.frame()
 
 for(censoring in c("exog_broken", "strict_exog_broken", "cond_indep_xz_broken", "cond_indep_z_broken", "indep_broken", "indep_holds")){
   for(n in c(1200)){
-    string_new <- paste0("simulation_output/simulation_numsims1000_n", n, 
+    string_new <- paste0("./simulation_output/simulation_numsims1000_n", n, 
                          "_p2_sigma2-0.08_logistic_truebeta-0.01r-0.02r0.005_startingvals-0r0r0_censoringrates-0.25r0.5r0.75_censoringmech-", 
                          censoring, ".RDS")
     sim_new <- readRDS(string_new)
