@@ -285,6 +285,8 @@ generate_simulation_results <- function(num_sims, n,
   # list into dataframe 
   sep <- enframe(sim_output) %>% unnest(cols = value) %>% unnest(cols = value)
   
+  return(sep)
+  
   # save beta estimation
   beta_est = suppressWarnings(sep[rep(c(TRUE, FALSE), num_sims*length(method)*length(censoring_rate)), ])  %>%
     unnest(cols = value) %>% 
@@ -292,7 +294,7 @@ generate_simulation_results <- function(num_sims, n,
   
   # save standard error estimation 
   se_est = suppressMessages(suppressWarnings(sep[rep(!c(TRUE, FALSE), num_sims*length(method)*length(censoring_rate)), ]  %>% 
-                                               separate(name, c("censoring_rate", "method"), sep = "_") %>% unnest_wider(value)))
+                                               separate(name, c("censoring_rate", "method"), sep = "_") %>% unnest_wider(value, "")))
   colnames(se_est) = c("censoring_rate", "method", paste0("se", 1:(p+1)))
   
   # find coverage probability
@@ -307,6 +309,7 @@ generate_simulation_results <- function(num_sims, n,
       group_by(censoring_rate, method) %>% 
       summarize(cov = mean(I(beta + qnorm(0.025)*se < true_beta[i] & 
                                beta + qnorm(0.975)*se > true_beta[i])))
+    colnames(cover_est_new)[3] = paste0("cov", i)
     beta_est_cover = suppressMessages(cbind(beta_est_cover, cover_est_new[,3]))
   }
   colnames(beta_est_cover) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
