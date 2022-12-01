@@ -8,7 +8,7 @@ Code for simulations, tables, and figures for the manuscript (Insert link to pap
 
 - `simulation_study_functions_cc.R`: This script defines the functions used to generate data, run a simulation, and report the results for requested simulation settings.
 - `main_cc.R`: This script defines the functions used to estimate the parameters and the variance of the parameters using a complete case analysis or an oracle analysis.
-- `simulation_study_cc.R`: This script will run the simulation study. You can change the settings in the script to run with a certain number of simulations, sample size, number of fully observed covariates, true parameter values, starting values, mean function, censoring rate, censoring mechanism, sigma2, and output file name.
+- `simulation_study_cc.R`: You can run a simulation study from inside this script. You can change the settings in the script to run with a certain number of simulations, sample size, number of fully observed covariates, true parameter values, starting values, mean function, censoring rate, censoring mechanism, sigma2, and output file name.
 - `dag_cc.R`: This script recreates the Directed Acyclic Graph (DAG) that is in the manuscript.
 - `cc_tables.R`: This script recreates the simulation results tables that are in the manuscript main text and supplementary materials.
 
