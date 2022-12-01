@@ -270,7 +270,7 @@ generate_simulation_results <- function(num_sims, n,
                       "n", "true_beta", "starting_vals",
                       "censoring_mechanism", "se", "sigma2"), 
                 envir = environment())
-  clusterEvalQ(cl, c(library(tidyverse), library(geex), library(numDeriv)))
+  clusterEvalQ(cl, c(library(tidyverse), library(numDeriv)))
   # run clusterApply for each censoring rate and method combo 
   k = 1
   for (i in 1:length(censoring_rate)){

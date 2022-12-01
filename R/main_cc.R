@@ -43,11 +43,6 @@ estimate_se_sandwich <- function(data_yXZ, m, beta_est, method){
       A(data["X"], data[grepl("^Z", names(data))], m, beta_est)*
         rep(data["y"]-m(beta_est, data["X"], data[grepl("^Z", names(data))]), length(beta_est)) %>% as.numeric()
     }
-  }else if(method == "naive"){
-    g = function(data, A, m_func, beta_est){
-      A(data["X"], data[grepl("^Z", names(data))], m, beta_est)*
-        rep(data["y"]-m(beta_est, data["X"], data[grepl("^Z", names(data))]), length(beta_est)) %>% as.numeric()
-    }
   }
     
   
