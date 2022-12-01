@@ -2,7 +2,7 @@
 
 ## Marissa C. Ashner and Tanya P. Garcia
 
-Code for simulations, tables, and figures for the manuscript (Insert link to paper here).
+Code for simulations, tables, and figures for the manuscript *Back to the basics: exploring the validity of the complete case analysis for regression models with a right-censored covariate* (Insert link to paper here).
 
 #### In the `R` subdirectory, you will find the following: 
 
