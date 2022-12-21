@@ -35,11 +35,11 @@ dag1 <- dagify(Y ~ X,
             #  C ~ X,
               C ~ Y,
               coords = coord_dag,
-              labels = c("X" = "Time to diagnosis",
+              labels = c("X" = "Time to Diagnosis",
                          "C" = "Time to Censoring",
                          "Y" = "Total Motor Score",
                          "D" = "Censoring Indicator",
-                         "Z" = "CAG repeat length & Age"))
+                         "Z" = "CAG Repeat Length & Age"))
 dag2 <- dagify(Y ~ X,
                X ~ Z,
              #  Y ~ Z,
@@ -49,11 +49,11 @@ dag2 <- dagify(Y ~ X,
             #   C ~ X,
              #  Y ~ C,
                coords = coord_dag,
-               labels = c("X" = "Time to diagnosis",
+               labels = c("X" = "Time to Diagnosis",
                           "C" = "Time to Censoring",
                           "Y" = "Apathy",
                           "D" = "Censoring Indicator",
-                          "Z" = "CAG repeat length & Age"))
+                          "Z" = "CAG Repeat Length & Age"))
 
 ####################
 ##### Plotting #####

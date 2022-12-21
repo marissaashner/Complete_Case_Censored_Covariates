@@ -313,7 +313,7 @@ generate_simulation_results <- function(num_sims, n,
     beta_est_cover = suppressMessages(cbind(beta_est_cover, cover_est_new[,3]))
   }
   colnames(beta_est_cover) <- c("Censoring Rate", "Method", paste0("$\\beta_{", 0:p, "}$"))
-  return(beta_est_cover)
+  # return(beta_est_cover)
   
   # take the mean of the estimated beta from each simulation 
   beta_est_mean = beta_est %>% group_by(censoring_rate, method) %>% summarise_all(mean) %>% as.data.frame()
