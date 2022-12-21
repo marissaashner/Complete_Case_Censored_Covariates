@@ -2,7 +2,7 @@
 
 ## Marissa C. Ashner and Tanya P. Garcia
 
-Code for simulations, tables, and figures for the manuscript (Insert link to paper here).
+Code for simulations, tables, and figures for the manuscript *Back to the basics: exploring the validity of the complete case analysis for regression models with a right-censored covariate* (Insert link to paper here).
 
 #### In the `R` subdirectory, you will find the following: 
 
@@ -16,9 +16,9 @@ Code for simulations, tables, and figures for the manuscript (Insert link to pap
 
 #### In the main directory, you will find the following: 
 
-- `cc_simulation_study.sh`: This is a bash script, which includes an example of another way to run `simulation_study_cc.R` from the command line instead of running the simulations inside R script itself. To use this on the command line, you would edit the parameters in the file, save, and run the command `bash cc_simulation_study.sh` in the terminal.
+- `cc_simulation_study.sh`: This is a bash script, which includes an example of another way to run `simulation_study_cc.R` from the command line instead of running the simulations inside the R script itself. To use this on the command line, you would edit the parameters in the file, save, and run the command `bash cc_simulation_study.sh` in the terminal.
 
-*Note:* Some syntax in this file may change depending on the environment you are running it in. This is just an example based on the computing cluster that was used to run the simulations.
+*Note:* Some syntax in this file may change depending on the environment you are running it in. This is just an example of a bash file based on the computing cluster that was used to run the simulations.
 
 #### In the `simulation_output` subdirectory, you will find the simulation output files needed to recreate the tables in `R/cc_tables.R`.
 
