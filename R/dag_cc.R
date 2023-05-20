@@ -1,4 +1,4 @@
-########################################################## 
+##########################################################
 # This script creates the DAG figures for the manuscript #
 ##########################################################
 
@@ -18,8 +18,8 @@ library(latex2exp)
 ########################
 
 coord_dag = list(
-  x = c(X = -0.25, C = 0, Y = 2, D = 0.5, Z = -1),
-  y = c(X = 0.15, Y = 0, C = -1, D = -0.25, Z = 0.5)
+  x = c(X = 0, C = 0, Y = 0.05, D = 0.025, Z = -0.015),
+  y = c(X = 0, Y = -0.05, C = -0.1, D = -0.035, Z = 0.05)
 )
 
 ########################################
@@ -29,7 +29,7 @@ coord_dag = list(
 dag1 <- dagify(Y ~ X,
               X ~ Z,
               Y ~ Z,
-            #  C ~ Z,
+              C ~ Z,
               D ~ X,
               D ~ C,
             #  C ~ X,
@@ -42,7 +42,7 @@ dag1 <- dagify(Y ~ X,
                          "Z" = "CAG Repeat Length & Age"))
 dag2 <- dagify(Y ~ X,
                X ~ Z,
-             #  Y ~ Z,
+               Y ~ Z,
                C ~ Z,
                D ~ X,
                D ~ C,
@@ -53,7 +53,7 @@ dag2 <- dagify(Y ~ X,
                           "C" = "Time to Censoring",
                           "Y" = "Apathy",
                           "D" = "Censoring Indicator",
-                          "Z" = "CAG Repeat Length & Age"))
+                          "Z" = "CAG, Age, & Total Motor Score"))
 
 ####################
 ##### Plotting #####
@@ -62,18 +62,22 @@ dag2 <- dagify(Y ~ X,
 dag1_plot <- ggdag(dag1,
       text = FALSE,
       use_labels = "label",
-      text_size = 2.5) + 
-  theme_void() + 
-  geom_dag_text(parse = TRUE, 
+      node_size = 8,
+      text_size = 4) +
+  theme_void() +
+  geom_dag_text(parse = TRUE,
                 label = c("C", TeX("\\Delta"), "X", "Y", "Z"))
-                      
+
 
 dag2_plot <- ggdag(dag2,
       text = FALSE,
       use_labels = "label",
-      text_size = 2.5) + theme_void() + 
-  geom_dag_text(parse = TRUE, 
+      node_size = 8,
+      text_size = 4) + theme_void() +
+  geom_dag_text(parse = TRUE,
                 label = c("C", TeX("\\Delta"), "X", "Y", "Z"))
+
+dag2_plot
 
 ###################################
 ##### Plotting on same figure #####
