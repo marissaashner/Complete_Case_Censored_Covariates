@@ -2,7 +2,7 @@
 
 ## Marissa C. Ashner and Tanya P. Garcia
 
-Code for simulations, tables, and figures for the manuscript *Back to the basics: exploring the validity of the complete case analysis for regression models with a right-censored covariate* (Insert link to paper here).
+Code for simulations, tables, and figures for the manuscript *Understanding the implications of a complete case analysis for regression models with a right-censored covariate* (arXiv link: https://arxiv.org/abs/2303.16119).
 
 #### In the `R` subdirectory, you will find the following: 
 
@@ -20,5 +20,5 @@ Code for simulations, tables, and figures for the manuscript *Back to the basics
 
 *Note:* Some syntax in this file may change depending on the environment you are running it in. This is just an example of a bash file based on the computing cluster that was used to run the simulations.
 
-#### In the `simulation_output` subdirectory, you will find the simulation output files needed to recreate the tables in `R/cc_tables.R`.
+#### In the `simulation_output_may2023` subdirectory, you will find the simulation output files needed to recreate the tables in `R/cc_tables.R`.
 
