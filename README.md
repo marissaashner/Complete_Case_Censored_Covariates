@@ -22,3 +22,5 @@ Code for simulations, tables, and figures for the manuscript *Understanding the 
 
 #### In the `simulation_output_may2023` subdirectory, you will find the simulation output files needed to recreate the tables in `R/cc_tables.R`.
 
+#### In the `Figures and Tables` subdirectory, you will find the output files for the tables and figures from `R/cc_tables.R` and `R/cc_dag.R`.
+
