@@ -1,0 +1,83 @@
+\begin{table}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{lllllrrrrrr}
+\toprule
+\multicolumn{2}{c}{\textbf{ }} & \multicolumn{3}{c}{\textbf{Bias (\textbackslash{}\% Bias)}} & \multicolumn{3}{c}{\textbf{Estimated SE}} & \multicolumn{3}{c}{\textbf{95\textbackslash{}\% Coverage}} \\
+\cmidrule(l{5pt}r{5pt}){3-5} \cmidrule(l{5pt}r{5pt}){6-8} \cmidrule(l{5pt}r{5pt}){9-11}
+\textbf{Censoring Rate} & \textbf{Method} & \textbf{$\wh{\beta}_0$} & \textbf{$\wh{\beta}_1$} & \textbf{$\wh{\beta}_2$} & \textbf{$\wh{\beta}_0$} & \textbf{$\wh{\beta}_1$} & \textbf{$\wh{\beta}_2$} & \textbf{$\wh{\beta}_0$} & \textbf{$\wh{\beta}_1$} & \textbf{$\wh{\beta}_2$}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{11}{c}{\textbf{(a) Exogenous Censoring Broken}}\\
+ & CC & 4e-04 (8.78) & 0.0398 (398.1) & -8e-04 (4.15) & 0.008 & 0.005 & 0.008 & 0.947 & 0.000 & 0.940\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}25\%} & MCAR & 3e-04 (5.74) & 2e-04 (1.94) & 0 (0.09) & 0.010 & 0.006 & 0.010 & 0.952 & 0.960 & \vphantom{1} 0.931\\
+\addlinespace
+ & CC & 0.0011 (22.32) & 0.1771 (1771.07) & -0.0055 (27.3) & 0.022 & 0.024 & 0.022 & 0.937 & 0.002 & 0.929\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}75\%} & MCAR & 0 (0.54) & 5e-04 (4.61) & -8e-04 (3.76) & 0.018 & 0.010 & 0.018 & 0.935 & 0.959 & \vphantom{1} 0.930\\
+\addlinespace
+\hspace{1em}0\% & Oracle & 3e-04 (5.4) & 0 (0.21) & 1e-04 (-0.65) & 0.009 & 0.005 & 0.009 & 0.943 & 0.953 & \vphantom{5} 0.938\\
+\addlinespace
+\addlinespace[0.3em]
+\multicolumn{11}{c}{\textbf{(b) Strict Exogenous Censoring Broken}}\\
+ & CC & 3e-04 (6.87) & 1e-04 (0.66) & 2e-04 (-0.83) & 0.012 & 0.007 & 0.012 & 0.945 & 0.949 & 0.932\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}25\%} & MCAR & 3e-04 (5.74) & 2e-04 (1.94) & 0 (0.09) & 0.010 & 0.006 & 0.010 & 0.952 & 0.960 & 0.931\\
+\addlinespace
+ & CC & 9e-04 (17.92) & -2e-04 (-1.71) & 1e-04 (-0.45) & 0.031 & 0.018 & 0.032 & 0.938 & 0.957 & 0.935\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}75\%} & MCAR & 0 (0.54) & 5e-04 (4.61) & -8e-04 (3.76) & 0.018 & 0.010 & 0.018 & 0.935 & 0.959 & 0.930\\
+\addlinespace
+\hspace{1em}0\% & Oracle & 3e-04 (5.4) & 0 (0.21) & 1e-04 (-0.65) & 0.009 & 0.005 & 0.009 & 0.943 & 0.953 & \vphantom{4} 0.938\\
+\addlinespace
+\addlinespace[0.3em]
+\multicolumn{11}{c}{\textbf{(c) Conditional Independence given (X,Z) Broken}}\\
+ & CC & 3e-04 (5.82) & 0 (-0.02) & 2e-04 (-0.82) & 0.010 & 0.006 & 0.010 & 0.949 & 0.948 & 0.948\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}25\%} & MCAR & 0 (-0.65) & 2e-04 (2.01) & -1e-04 (0.33) & 0.010 & 0.006 & 0.010 & 0.940 & 0.952 & 0.940\\
+\addlinespace
+ & CC & 4e-04 (7.86) & 4e-04 (4.35) & -7e-04 (3.28) & 0.018 & 0.010 & 0.019 & 0.937 & 0.949 & 0.946\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}75\%} & MCAR & -2e-04 (-3.77) & 0 (0.12) & -2e-04 (1.13) & 0.018 & 0.010 & 0.018 & 0.936 & 0.953 & 0.938\\
+\addlinespace
+\hspace{1em}0\% & Oracle & 3e-04 (5.4) & 0 (0.21) & 1e-04 (-0.65) & 0.009 & 0.005 & 0.009 & 0.943 & 0.953 & \vphantom{3} 0.938\\
+\addlinespace
+\addlinespace[0.3em]
+\multicolumn{11}{c}{\textbf{(d) Conditional Independence given Z Broken}}\\
+ & CC & 4e-04 (8.84) & 2e-04 (2.29) & 1e-04 (-0.72) & 0.010 & 0.006 & 0.010 & 0.943 & 0.953 & 0.937\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}25\%} & MCAR & 2e-04 (4.66) & 1e-04 (1.1) & 2e-04 (-0.8) & 0.010 & 0.006 & 0.010 & 0.940 & 0.943 & \vphantom{1} 0.939\\
+\addlinespace
+ & CC & -1e-04 (-1.23) & 3e-04 (2.81) & 9e-04 (-4.53) & 0.018 & 0.010 & 0.018 & 0.936 & 0.957 & 0.934\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}75\%} & MCAR & 0.0012 (23.46) & 2e-04 (1.73) & 0 (-0.02) & 0.018 & 0.010 & 0.018 & 0.924 & 0.932 & \vphantom{1} 0.942\\
+\addlinespace
+\hspace{1em}0\% & Oracle & 3e-04 (5.4) & 0 (0.21) & 1e-04 (-0.65) & 0.009 & 0.005 & 0.009 & 0.943 & 0.953 & \vphantom{2} 0.938\\
+\addlinespace
+\addlinespace[0.3em]
+\multicolumn{11}{c}{\textbf{(e) Independence Broken}}\\
+ & CC & 2e-04 (3.18) & 1e-04 (1.2) & 3e-04 (-1.42) & 0.010 & 0.007 & 0.010 & 0.953 & 0.953 & 0.930\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}25\%} & MCAR & 2e-04 (3.78) & 1e-04 (0.84) & 3e-04 (-1.5) & 0.011 & 0.006 & 0.010 & 0.935 & 0.955 & 0.929\\
+\addlinespace
+ & CC & -2e-04 (-3.81) & 6e-04 (6.15) & 8e-04 (-4.11) & 0.018 & 0.019 & 0.019 & 0.933 & 0.953 & 0.933\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}75\%} & MCAR & -3e-04 (-6) & 3e-04 (2.93) & -4e-04 (1.79) & 0.018 & 0.010 & 0.018 & 0.936 & 0.956 & 0.941\\
+\addlinespace
+\hspace{1em}0\% & Oracle & 3e-04 (5.4) & 0 (0.21) & 1e-04 (-0.65) & 0.009 & 0.005 & 0.009 & 0.943 & 0.953 & \vphantom{1} 0.938\\
+\addlinespace
+\addlinespace[0.3em]
+\multicolumn{11}{c}{\textbf{(f) Independence Holds}}\\
+ & CC & 2e-04 (3.09) & 1e-04 (0.66) & 4e-04 (-1.83) & 0.010 & 0.007 & 0.010 & 0.944 & 0.954 & 0.937\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}25\%} & MCAR & 2e-04 (4.66) & 1e-04 (1.1) & 2e-04 (-0.8) & 0.010 & 0.006 & 0.010 & 0.940 & 0.943 & 0.939\\
+\addlinespace
+ & CC & 1e-04 (1.37) & 8e-04 (7.79) & 1e-04 (-0.71) & 0.018 & 0.029 & 0.018 & 0.932 & 0.938 & 0.938\\
+
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \hspace{1em}75\%} & MCAR & 0.0012 (23.46) & 2e-04 (1.73) & 0 (-0.02) & 0.018 & 0.010 & 0.018 & 0.924 & 0.932 & 0.942\\
+\addlinespace
+\hspace{1em}0\% & Oracle & 3e-04 (5.4) & 0 (0.21) & 1e-04 (-0.65) & 0.009 & 0.005 & 0.009 & 0.943 & 0.953 & 0.938\\
+\bottomrule
+\end{tabular}}
+\end{table}

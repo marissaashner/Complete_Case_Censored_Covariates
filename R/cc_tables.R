@@ -263,76 +263,85 @@ write_file(tab1, "tab_cc_400_linear_int.txt")
 
 # Corresponds with Table S.3 in manuscript
 
-
 sim_table_bias <- data.frame()
 sim_table_bias_per <- data.frame()
 sim_table_std_dev <- data.frame()
 sim_table_se <- data.frame()
 sim_table_cov <- data.frame()
 
+
 for(censoring in c("exog_broken", "strict_exog_broken", "cond_indep_xz_broken", "cond_indep_z_broken", "indep_broken", "indep_holds")){
   for(n in c(400)){
-    string_new <- paste0("../simulation_output/simulation_numsims1000_n", n,
-                         "_p2_sigma2-0.08_logistic_truebeta-0.01r-0.02r0.005_startingvals-0r0r0_censoringrates-0.25r0.5r0.75_censoringmech-",
+    string_new <- paste0("simulation_output_may2023/simulation_numsims1000_n", n,
+                         "_p2_sigma2-0.05_logistic_truebeta-0.01r-0.02r0.005_startingvals-0r0r0_censoringrates-0.25r0.75_censoringmech-",
                          censoring, ".RDS")
     sim_new <- readRDS(string_new)
 
     sim_table_bias <- rbind(sim_table_bias, sim_new$bias %>%
                               mutate(censoring = censoring,
-                                     n = n) %>%
-                              filter(`Censoring Rate` !=0.5))
+                                     n = n))
     sim_table_bias_per <- rbind(sim_table_bias_per, sim_new$bias_per %>%
                                   mutate(censoring = censoring,
-                                         n = n)  %>%
-                                  filter(`Censoring Rate` !=0.5))
+                                         n = n))
     sim_table_std_dev <- rbind(sim_table_std_dev, sim_new$std_dev %>%
                                  mutate(censoring = censoring,
-                                        n = n) %>%
-                                 filter(`Censoring Rate` !=0.5))
+                                        n = n))
     sim_table_se <- rbind(sim_table_se, sim_new$se %>%
                             mutate(censoring = censoring,
-                                   n = n) %>%
-                            filter(`Censoring Rate` !=0.5))
+                                   n = n))
     sim_table_cov <- rbind(sim_table_cov, sim_new$coverage %>%
                              mutate(censoring = censoring,
-                                    n = n) %>%
-                             filter(`Censoring Rate` !=0.5))
+                                    n = n))
   }
 }
 
-table_full = sim_table_bias_per[,c(1:2,5,3:4)] %>%
+
+sim_table_bias_per$`$\beta_{0}$` = paste0(round(sim_table_bias$`$\\beta_{0}$`, 4), " (",
+                                          round(sim_table_bias_per$`$\\beta_{0}$`, 2), ")")
+
+sim_table_bias_per$`$\beta_{1}$` = paste0(round(sim_table_bias$`$\\beta_{1}$`, 4), " (",
+                                          round(sim_table_bias_per$`$\\beta_{1}$`, 2), ")")
+
+sim_table_bias_per$`$\beta_{2}$` = paste0(round(sim_table_bias$`$\\beta_{2}$`, 4), " (",
+                                          round(sim_table_bias_per$`$\\beta_{2}$`, 2), ")")
+
+table_full = sim_table_bias_per[,c(1:2,10,8:9)] %>%
   cbind(sim_table_se[,c(5,3:4)],
         #  sim_table_se[,c(5,3:4)],
         sim_table_cov[,c(5,3:4)])
+colnames(table_full) = c("cens", "method", paste0("temp", 1:9))
+table_full = table_full %>% filter(!(cens == 0.25 & method == "oracle"))
+table_full[table_full$method == "oracle",]$cens = 0
 colnames(table_full) = c("Censoring Rate", "Method",
                          rep(c("$\\wh{\\beta}_0$",
                                "$\\wh{\\beta}_1$",
                                "$\\wh{\\beta}_2$"), 3))
 
 table_full$Method = factor(table_full$Method,
-                           labels = c("CC", "Oracle"))
+                           labels = c("CC", "MCAR", "Oracle"))
+table_full$`Censoring Rate` = factor(table_full$`Censoring Rate`,
+                                     labels = c("0\\%", "25\\%", "75\\%"))
 
-tab1 = kbl(table_full, format = "latex", booktabs = T, digits = 2, escape = F) %>%
+tab1 = kbl(table_full, format = "latex", booktabs = T, digits = 3, escape = F) %>%
   row_spec(0, bold = T) %>%
   kable_styling(latex_options = c("scale_down")) %>%
-  add_header_above(c(" " = 2, "Percent Bias" = 3,
+  add_header_above(c(" " = 2, "Bias (\\% Bias)" = 3,
                      #  "Empirical SD" = 3,
-                     "Model SE" = 3,
-                     "95% Coverage" = 3),
+                     "Estimated SE" = 3,
+                     "95\\% Coverage" = 3),
                    line_sep = 5, bold = T) %>%
-  pack_rows(index=c("(a) Exogenous Censoring Broken" = 4,
-                    "(b) Strict Exogenous Censoring Broken" = 4,
-                    "(c) Conditional Independence given (X,Z) Broken" = 4,
-                    "(d) Conditional Independence given Z Broken" = 4,
-                    "(e) Independence Broken" = 4,
-                    "(f) Independence Holds"= 4),
+  pack_rows(index=c("(a) Exogenous Censoring Broken" = 5,
+                    "(b) Strict Exogenous Censoring Broken" = 5,
+                    "(c) Conditional Independence given (X,Z) Broken" = 5,
+                    "(d) Conditional Independence given Z Broken" = 5,
+                    "(e) Independence Broken" = 5,
+                    "(f) Independence Holds"= 5),
             latex_align = "c") %>%
   collapse_rows(columns = 1, latex_hline = "linespace", valign = "top")
 tab1
 
 
-write_file(tab1, "tab_cc_400_logistic.txt")
-
+write_file(tab1, "tab_cc_400_logistic_may2023.txt")
 
 ###########################
 ##### LOGISTIC n = 1200 ######
@@ -347,68 +356,80 @@ sim_table_std_dev <- data.frame()
 sim_table_se <- data.frame()
 sim_table_cov <- data.frame()
 
+
 for(censoring in c("exog_broken", "strict_exog_broken", "cond_indep_xz_broken", "cond_indep_z_broken", "indep_broken", "indep_holds")){
   for(n in c(1200)){
-    string_new <- paste0("../simulation_output/simulation_numsims1000_n", n,
-                         "_p2_sigma2-0.08_logistic_truebeta-0.01r-0.02r0.005_startingvals-0r0r0_censoringrates-0.25r0.5r0.75_censoringmech-",
+    string_new <- paste0("simulation_output_may2023/simulation_numsims1000_n", n,
+                         "_p2_sigma2-0.05_logistic_truebeta-0.01r-0.02r0.005_startingvals-0r0r0_censoringrates-0.25r0.75_censoringmech-",
                          censoring, ".RDS")
     sim_new <- readRDS(string_new)
 
     sim_table_bias <- rbind(sim_table_bias, sim_new$bias %>%
                               mutate(censoring = censoring,
-                                     n = n) %>%
-                              filter(`Censoring Rate` !=0.5))
+                                     n = n))
     sim_table_bias_per <- rbind(sim_table_bias_per, sim_new$bias_per %>%
                                   mutate(censoring = censoring,
-                                         n = n)  %>%
-                                  filter(`Censoring Rate` !=0.5))
+                                         n = n))
     sim_table_std_dev <- rbind(sim_table_std_dev, sim_new$std_dev %>%
                                  mutate(censoring = censoring,
-                                        n = n) %>%
-                                 filter(`Censoring Rate` !=0.5))
+                                        n = n))
     sim_table_se <- rbind(sim_table_se, sim_new$se %>%
                             mutate(censoring = censoring,
-                                   n = n) %>%
-                            filter(`Censoring Rate` !=0.5))
+                                   n = n))
     sim_table_cov <- rbind(sim_table_cov, sim_new$coverage %>%
                              mutate(censoring = censoring,
-                                    n = n) %>%
-                             filter(`Censoring Rate` !=0.5))
+                                    n = n))
   }
 }
 
-table_full = sim_table_bias_per[,c(1:2,5,3:4)] %>%
+
+sim_table_bias_per$`$\beta_{0}$` = paste0(round(sim_table_bias$`$\\beta_{0}$`, 4), " (",
+                                          round(sim_table_bias_per$`$\\beta_{0}$`, 2), ")")
+
+sim_table_bias_per$`$\beta_{1}$` = paste0(round(sim_table_bias$`$\\beta_{1}$`, 4), " (",
+                                          round(sim_table_bias_per$`$\\beta_{1}$`, 2), ")")
+
+sim_table_bias_per$`$\beta_{2}$` = paste0(round(sim_table_bias$`$\\beta_{2}$`, 4), " (",
+                                          round(sim_table_bias_per$`$\\beta_{2}$`, 2), ")")
+
+table_full = sim_table_bias_per[,c(1:2,10,8:9)] %>%
   cbind(sim_table_se[,c(5,3:4)],
         #  sim_table_se[,c(5,3:4)],
         sim_table_cov[,c(5,3:4)])
+colnames(table_full) = c("cens", "method", paste0("temp", 1:9))
+table_full = table_full %>% filter(!(cens == 0.25 & method == "oracle"))
+table_full[table_full$method == "oracle",]$cens = 0
 colnames(table_full) = c("Censoring Rate", "Method",
                          rep(c("$\\wh{\\beta}_0$",
                                "$\\wh{\\beta}_1$",
                                "$\\wh{\\beta}_2$"), 3))
 
 table_full$Method = factor(table_full$Method,
-                           labels = c("CC", "Oracle"))
+                           labels = c("CC", "MCAR", "Oracle"))
+table_full$`Censoring Rate` = factor(table_full$`Censoring Rate`,
+                                     labels = c("0\\%", "25\\%", "75\\%"))
 
-tab1 = kbl(table_full, format = "latex", booktabs = T, digits = 2, escape = F) %>%
+tab1 = kbl(table_full, format = "latex", booktabs = T, digits = 3, escape = F) %>%
   row_spec(0, bold = T) %>%
   kable_styling(latex_options = c("scale_down")) %>%
-  add_header_above(c(" " = 2, "Percent Bias" = 3,
+  add_header_above(c(" " = 2, "Bias (\\% Bias)" = 3,
                      #  "Empirical SD" = 3,
-                     "Model SE" = 3,
-                     "95% Coverage" = 3),
+                     "Estimated SE" = 3,
+                     "95\\% Coverage" = 3),
                    line_sep = 5, bold = T) %>%
-  pack_rows(index=c("(a) Exogenous Censoring Broken" = 4,
-                    "(b) Strict Exogenous Censoring Broken" = 4,
-                    "(c) Conditional Independence given (X,Z) Broken" = 4,
-                    "(d) Conditional Independence given Z Broken" = 4,
-                    "(e) Independence Broken" = 4,
-                    "(f) Independence Holds"= 4),
+  pack_rows(index=c("(a) Exogenous Censoring Broken" = 5,
+                    "(b) Strict Exogenous Censoring Broken" = 5,
+                    "(c) Conditional Independence given (X,Z) Broken" = 5,
+                    "(d) Conditional Independence given Z Broken" = 5,
+                    "(e) Independence Broken" = 5,
+                    "(f) Independence Holds"= 5),
             latex_align = "c") %>%
   collapse_rows(columns = 1, latex_hline = "linespace", valign = "top")
 tab1
 
 
-write_file(tab1, "tab_cc_1200_logistic.txt")
+write_file(tab1, "tab_cc_1200_logistic_may2023.txt")
+
 
 
 
